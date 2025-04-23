@@ -107,7 +107,7 @@ export default function ClientStoryForm() {
                 <Input name="industry" placeholder="Enter industry" value={formData.industry} onChange={handleChange} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Client's Main Challenge</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client&apos;s Main Challenge</label>
                 <Input name="challenge" placeholder="Describe the main challenge" value={formData.challenge} onChange={handleChange} />
               </div>
             </div>
