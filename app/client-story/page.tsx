@@ -72,7 +72,8 @@ export default function ClientStoryForm() {
       } else {
         setStatus('Submission failed.')
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Error submitting form:', err)
       setStatus('Error submitting form.')
       setWebhookResponse({
         success: false,

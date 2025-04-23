@@ -25,7 +25,8 @@ export default function Home() {
       } else {
         setStatus('Failed to send message.')
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Error:', err)
       setStatus('Error sending message.')
     }
   }
