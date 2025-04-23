@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 interface WebhookResponse {
   success: boolean;
@@ -192,8 +193,18 @@ export default function ClientStoryForm() {
               {webhookResponse.content && (
                 <div className="bg-gray-50 p-4 rounded-xl">
                   <p className="text-sm font-medium text-gray-500 mb-2">Generated Content</p>
-                  <div className="bg-white p-4 rounded-lg">
-                    <p className="text-gray-900 whitespace-pre-wrap">{webhookResponse.content}</p>
+                  <div className="bg-white p-4 rounded-lg markdown-content">
+                    <ReactMarkdown
+                      components={{
+                        strong: ({node, ...props}) => <strong className="font-bold text-gray-900" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-4 text-gray-900" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4" {...props} />,
+                        li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                      }}
+                    >
+                      {webhookResponse.content}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}
