@@ -188,7 +188,7 @@ export default function Home() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Client Testimonial</label>
-                <Textarea name="testimonial" placeholder="Share client testimonial" value={formData.testimonial} onChange={handleChange} />
+                <Textarea name="testimonial" placeholder="Share client testimonial (optional)" value={formData.testimonial} onChange={handleChange} />
               </div>
             </div>
 
