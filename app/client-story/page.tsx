@@ -88,8 +88,8 @@ export default function ClientStoryForm() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Share Your Success Story</h1>
-          <p className="text-xl text-gray-600">Help others understand the value of virtual assistance by sharing your experience</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Case Study Generator</h1>
+          <p className="text-xl text-gray-600">Internal tool for generating case studies from client data</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
@@ -101,14 +101,14 @@ export default function ClientStoryForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-                <Input name="companyName" placeholder="Enter company name (Optional)" value={formData.companyName} onChange={handleChange} />
+                <Input name="companyName" placeholder="Enter company name" value={formData.companyName} onChange={handleChange} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
                 <Input name="industry" placeholder="Enter industry" value={formData.industry} onChange={handleChange} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Client&apos;s Main Challenge</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client's Main Challenge</label>
                 <Input name="challenge" placeholder="Describe the main challenge" value={formData.challenge} onChange={handleChange} />
               </div>
             </div>
@@ -124,7 +124,7 @@ export default function ClientStoryForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Special Tools Used</label>
-                <Input name="tools" placeholder="List tools used (Optional)" value={formData.tools} onChange={handleChange} />
+                <Input name="tools" placeholder="List tools used" value={formData.tools} onChange={handleChange} />
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function ClientStoryForm() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Client Testimonial</label>
-              <Textarea name="testimonial" placeholder="Share your testimonial (Optional)" value={formData.testimonial} onChange={handleChange} />
+              <Textarea name="testimonial" placeholder="Share client testimonial" value={formData.testimonial} onChange={handleChange} />
             </div>
           </div>
 
@@ -149,7 +149,7 @@ export default function ClientStoryForm() {
               type="submit"
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition duration-300 transform hover:scale-[1.02] font-medium text-lg shadow-lg"
             >
-              Submit Success Story
+              Generate Case Study
             </button>
           </div>
 
@@ -166,7 +166,7 @@ export default function ClientStoryForm() {
 
         {webhookResponse && (
           <div className="mt-8 bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Webhook Response</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Generated Case Study</h2>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-xl">
@@ -192,7 +192,7 @@ export default function ClientStoryForm() {
 
               {webhookResponse.content && (
                 <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-sm font-medium text-gray-500 mb-2">Generated Content</p>
+                  <p className="text-sm font-medium text-gray-500 mb-2">Case Study Content</p>
                   <div className="bg-white p-4 rounded-lg markdown-content">
                     <ReactMarkdown
                       components={{
@@ -216,49 +216,4 @@ export default function ClientStoryForm() {
   )
 }
 
-function Input({
-  name,
-  placeholder,
-  value,
-  onChange,
-}: {
-  name: string
-  placeholder: string
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-}) {
-  return (
-    <input
-      name={name}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-      required={placeholder.toLowerCase().includes('(optional') ? false : true}
-    />
-  )
-}
-
-function Textarea({
-  name,
-  placeholder,
-  value,
-  onChange,
-}: {
-  name: string
-  placeholder: string
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-}) {
-  return (
-    <textarea
-      name={name}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-      rows={4}
-      required={placeholder.toLowerCase().includes('(optional') ? false : true}
-    />
-  )
-}
+// ... existing Input and Textarea components ... 
