@@ -3,6 +3,53 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
+const Input = ({
+  name,
+  placeholder,
+  value,
+  onChange,
+}: {
+  name: string
+  placeholder: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}) => {
+  return (
+    <input
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+      required
+    />
+  )
+}
+
+const Textarea = ({
+  name,
+  placeholder,
+  value,
+  onChange,
+}: {
+  name: string
+  placeholder: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+}) => {
+  return (
+    <textarea
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+      rows={4}
+      required
+    />
+  )
+}
+
 interface WebhookResponse {
   success: boolean;
   message: string;
@@ -108,7 +155,7 @@ export default function ClientStoryForm() {
                 <Input name="industry" placeholder="Enter industry" value={formData.industry} onChange={handleChange} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Client's Main Challenge</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client&apos;s Main Challenge</label>
                 <Input name="challenge" placeholder="Describe the main challenge" value={formData.challenge} onChange={handleChange} />
               </div>
             </div>
@@ -214,52 +261,4 @@ export default function ClientStoryForm() {
       </div>
     </div>
   )
-}
-
-
-function Input({
-  name,
-  placeholder,
-  value,
-  onChange,
-}: {
-  name: string
-  placeholder: string
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-}) {
-  return (
-    <input
-      name={name}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-      required={placeholder.toLowerCase().includes('(optional') ? false : true}
-    />
-  )
-}
-
-function Textarea({
-  name,
-  placeholder,
-  value,
-  onChange,
-}: {
-  name: string
-  placeholder: string
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-}) {
-  return (
-    <textarea
-      name={name}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-      rows={4}
-      required={placeholder.toLowerCase().includes('(optional') ? false : true}
-    />
-  )
-}
+} 
