@@ -8,11 +8,13 @@ const Input = ({
   placeholder,
   value,
   onChange,
+  required = true,
 }: {
   name: string
   placeholder: string
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  required?: boolean
 }) => {
   return (
     <input
@@ -21,7 +23,7 @@ const Input = ({
       value={value}
       onChange={onChange}
       className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-      required
+      required={required}
     />
   )
 }
@@ -31,11 +33,13 @@ const Textarea = ({
   placeholder,
   value,
   onChange,
+  required = true,
 }: {
   name: string
   placeholder: string
   value: string
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  required?: boolean
 }) => {
   return (
     <textarea
@@ -45,7 +49,7 @@ const Textarea = ({
       onChange={onChange}
       className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
       rows={4}
-      required
+      required={required}
     />
   )
 }
@@ -64,6 +68,8 @@ export default function Home() {
     industry: '',
     challenge: '',
     vaType: '',
+    vaName: '',
+    clientRole: '',
     tasks: '',
     results: '',
     testimonial: '',
@@ -94,12 +100,17 @@ export default function Home() {
       const responseData = await res.json()
       
       // Extract content from the response structure
-      const content = responseData[0]?.message?.content || 'No content received'
+      const contentObj = responseData[0]?.message?.content || {}
+      const vaName = contentObj.name || formData.vaName
+      const caseStudyContent = contentObj.content || 'No content received'
+      
+      // Add VA's name at the top of the case study
+      const formattedContent = `# ${vaName}'s Case Study\n\n{caseStudyContent}`
       
       setWebhookResponse({
         success: res.ok,
         message: res.ok ? 'Webhook processed successfully' : 'Webhook processing failed',
-        content: content,
+        content: formattedContent,
         timestamp: new Date().toISOString(),
       })
 
@@ -111,6 +122,8 @@ export default function Home() {
           industry: '',
           challenge: '',
           vaType: '',
+          vaName: '',
+          clientRole: '',
           tasks: '',
           results: '',
           testimonial: '',
@@ -148,6 +161,10 @@ export default function Home() {
                   <Input name="clientName" placeholder="Enter client name" value={formData.clientName} onChange={handleChange} />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Client's Role (Optional)</label>
+                  <Input name="clientRole" placeholder="Enter client's role" value={formData.clientRole} onChange={handleChange} required={false} />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
                   <Input name="companyName" placeholder="Enter company name" value={formData.companyName} onChange={handleChange} />
                 </div>
@@ -165,6 +182,10 @@ export default function Home() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type of VA Provided</label>
                   <Input name="vaType" placeholder="Enter VA type" value={formData.vaType} onChange={handleChange} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">VA's Name</label>
+                  <Input name="vaName" placeholder="Enter VA's name" value={formData.vaName} onChange={handleChange} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Duration of Engagement</label>
@@ -187,8 +208,14 @@ export default function Home() {
                 <Textarea name="results" placeholder="Describe the results achieved" value={formData.results} onChange={handleChange} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Client Testimonial</label>
-                <Textarea name="testimonial" placeholder="Share client testimonial (optional)" value={formData.testimonial} onChange={handleChange} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client Testimonial (Optional)</label>
+                <Textarea 
+                  name="testimonial" 
+                  placeholder="Share client testimonial (optional)" 
+                  value={formData.testimonial} 
+                  onChange={handleChange}
+                  required={false}
+                />
               </div>
             </div>
 
@@ -246,6 +273,7 @@ export default function Home() {
                         components={{
                           strong: (props) => <strong className="font-bold text-gray-900" {...props} />,
                           p: (props) => <p className="mb-4 text-gray-900" {...props} />,
+                          h1: (props) => <h1 className="text-3xl font-bold text-gray-900 mb-8" {...props} />,
                           ul: (props) => <ul className="list-disc pl-5 mb-4" {...props} />,
                           ol: (props) => <ol className="list-decimal pl-5 mb-4" {...props} />,
                           li: (props) => <li className="mb-1" {...props} />,
