@@ -79,6 +79,8 @@ export default function Home() {
 
   const [status, setStatus] = useState<string | null>(null)
   const [webhookResponse, setWebhookResponse] = useState<WebhookResponse | null>(null)
+  const [editedContent, setEditedContent] = useState<string>('')
+  const [isEditing, setIsEditing] = useState<boolean>(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -91,7 +93,7 @@ export default function Home() {
     setWebhookResponse(null)
 
     try {
-      const res = await fetch('https://elazambs.app.n8n.cloud/webhook/5e7cfacf-2e43-470a-a159-1911ce007b76', {
+      const res = await fetch('https://elazambs.app.n8n.cloud/webhook-test/5e7cfacf-2e43-470a-a159-1911ce007b76', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -105,7 +107,7 @@ export default function Home() {
       const caseStudyContent = contentObj.content || 'No content received'
       
       // Add VA's name at the top of the case study
-      const formattedContent = `# ${vaName}'s Case Study\n\n{caseStudyContent}`
+      const formattedContent = `# ${vaName}'s Case Study\n\n${caseStudyContent}`
       
       setWebhookResponse({
         success: res.ok,
@@ -144,6 +146,21 @@ export default function Home() {
     }
   }
 
+  const handleContentEdit = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedContent(e.target.value)
+  }
+
+  const toggleEdit = () => {
+    if (isEditing) {
+      // Save changes
+      setWebhookResponse(prev => prev ? { ...prev, content: editedContent } : null)
+    } else {
+      // Start editing
+      setEditedContent(webhookResponse?.content || '')
+    }
+    setIsEditing(!isEditing)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -172,10 +189,6 @@ export default function Home() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
                   <Input name="industry" placeholder="Enter industry" value={formData.industry} onChange={handleChange} />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Client&apos;s Main Challenge</label>
-                  <Input name="challenge" placeholder="Describe the main challenge" value={formData.challenge} onChange={handleChange} />
-                </div>
               </div>
 
               <div className="space-y-6">
@@ -199,6 +212,10 @@ export default function Home() {
             </div>
 
             <div className="space-y-6">
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client&apos;s Main Challenge</label>
+                <Input name="challenge" placeholder="Describe the main challenge" value={formData.challenge} onChange={handleChange} />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Tasks the VA Handles</label>
                 <Textarea name="tasks" placeholder="Describe the tasks handled by the VA" value={formData.tasks} onChange={handleChange} />
@@ -267,20 +284,36 @@ export default function Home() {
 
                 {webhookResponse.content && (
                   <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-sm font-medium text-gray-500 mb-2">Case Study Content</p>
-                    <div className="bg-white p-4 rounded-lg markdown-content">
-                      <ReactMarkdown
-                        components={{
-                          strong: (props) => <strong className="font-bold text-gray-900" {...props} />,
-                          p: (props) => <p className="mb-4 text-gray-900" {...props} />,
-                          h1: (props) => <h1 className="text-3xl font-bold text-gray-900 mb-8" {...props} />,
-                          ul: (props) => <ul className="list-disc pl-5 mb-4" {...props} />,
-                          ol: (props) => <ol className="list-decimal pl-5 mb-4" {...props} />,
-                          li: (props) => <li className="mb-1" {...props} />,
-                        }}
+                    <div className="flex justify-between items-center mb-4">
+                      <p className="text-sm font-medium text-gray-500">Case Study Content</p>
+                      <button
+                        onClick={toggleEdit}
+                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
                       >
-                        {webhookResponse.content}
-                      </ReactMarkdown>
+                        {isEditing ? 'Save Changes' : 'Edit Content'}
+                      </button>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                      {isEditing ? (
+                        <textarea
+                          value={editedContent}
+                          onChange={handleContentEdit}
+                          className="w-full h-[500px] p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      ) : (
+                        <ReactMarkdown
+                          components={{
+                            strong: (props) => <strong className="font-bold text-gray-900" {...props} />,
+                            p: (props) => <p className="mb-4 text-gray-900" {...props} />,
+                            h1: (props) => <h1 className="text-3xl font-bold text-gray-900 mb-8" {...props} />,
+                            ul: (props) => <ul className="list-disc pl-5 mb-4" {...props} />,
+                            ol: (props) => <ol className="list-decimal pl-5 mb-4" {...props} />,
+                            li: (props) => <li className="mb-1" {...props} />,
+                          }}
+                        >
+                          {webhookResponse.content}
+                        </ReactMarkdown>
+                      )}
                     </div>
                   </div>
                 )}
