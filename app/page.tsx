@@ -81,6 +81,10 @@ export default function Home() {
   const [webhookResponse, setWebhookResponse] = useState<WebhookResponse | null>(null)
   const [editedContent, setEditedContent] = useState<string>('')
   const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [showSendPrompt, setShowSendPrompt] = useState(false)
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [sendStatus, setSendStatus] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -89,11 +93,12 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('Sending...')
+    setIsGenerating(true)
     setWebhookResponse(null)
+    setSendStatus(null)
 
     try {
-      const res = await fetch('https://elazambs.app.n8n.cloud/webhook-test/5e7cfacf-2e43-470a-a159-1911ce007b76', {
+      const res = await fetch('https://elazambs.app.n8n.cloud/webhook/5e7cfacf-2e43-470a-a159-1911ce007b76', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -101,10 +106,14 @@ export default function Home() {
 
       const responseData = await res.json()
       
-      // Extract content from the response structure
-      const contentObj = responseData[0]?.message?.content || {}
-      const vaName = contentObj.name || formData.vaName
-      const caseStudyContent = contentObj.content || 'No content received'
+      // Log the full response data
+      console.log(responseData)
+      
+      // Extract content from the response structure (fixed for actual response)
+      const vaName = responseData[0]?.vaName || formData.vaName
+      const caseStudyContent = responseData[0]?.content || 'No content received'
+      const resumeURL = responseData[0]?.resumeUrl || null
+      setResumeUrl(resumeURL)
       
       // Add VA's name at the top of the case study
       const formattedContent = `# ${vaName}'s Case Study\n\n${caseStudyContent}`
@@ -115,6 +124,7 @@ export default function Home() {
         content: formattedContent,
         timestamp: new Date().toISOString(),
       })
+      setShowSendPrompt(true)
 
       if (res.ok) {
         setStatus('Form submitted successfully!')
@@ -135,6 +145,7 @@ export default function Home() {
       } else {
         setStatus('Submission failed.')
       }
+      setIsGenerating(false)
     } catch (err) {
       console.error('Error submitting form:', err)
       setStatus('Error submitting form.')
@@ -143,6 +154,7 @@ export default function Home() {
         message: 'Error processing webhook',
         timestamp: new Date().toISOString(),
       })
+      setIsGenerating(false)
     }
   }
 
@@ -159,6 +171,39 @@ export default function Home() {
       setEditedContent(webhookResponse?.content || '')
     }
     setIsEditing(!isEditing)
+  }
+
+  // Send Case Study POST handler
+  const handleSendCaseStudy = async (send: boolean) => {
+    setShowSendPrompt(false)
+    if (resumeUrl) {
+      if (send && webhookResponse) {
+        // Send case study, vaName, and yes
+        const res = await fetch('/api/send-case-study', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: webhookResponse.content,
+            vaName: formData.vaName,
+            send: 'yes',
+            resumeUrl: resumeUrl,
+          }),
+        })
+        if (res.ok) {
+          setSendStatus('Case Study sent successfully!')
+        } else {
+          setSendStatus('Failed to send Case Study.')
+        }
+      } else {
+        // Send just no
+        await fetch('/api/send-case-study', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ send: 'no', resumeUrl: resumeUrl }),
+        })
+        setSendStatus('Case Study not sent')
+      }
+    }
   }
 
   return (
@@ -239,9 +284,10 @@ export default function Home() {
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition duration-300 transform hover:scale-[1.02] font-medium text-lg shadow-lg"
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition duration-300 transform hover:scale-[1.02] font-medium text-lg shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isGenerating}
               >
-                Generate Case Study
+                {isGenerating ? 'Generating...' : 'Generate Case Study'}
               </button>
             </div>
 
@@ -258,37 +304,48 @@ export default function Home() {
 
           {webhookResponse && (
             <div className="flex-1 bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Generated Case Study</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">Generated Case Study</h2>
+                <div className="text-green-600 font-medium">
+                  Done!
+                </div>
+              </div>
+              {/* Send Case Study Prompt */}
+              {showSendPrompt && (
+                <div className="mb-6 p-4 bg-blue-50 rounded-xl flex items-center justify-between gap-4">
+                  <span className="text-lg font-medium text-gray-800">Send Case Study?</span>
+                  <div className="flex gap-2">
+                    <button
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      onClick={() => handleSendCaseStudy(true)}
+                      disabled={isEditing}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      onClick={() => handleSendCaseStudy(false)}
+                      disabled={isEditing}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Send status message */}
+              {sendStatus && (
+                <div className={`mb-6 p-4 rounded-xl text-center font-medium ${sendStatus.includes('success') ? 'bg-green-50 text-green-700' : sendStatus.includes('not sent') ? 'bg-gray-100 text-gray-600' : 'bg-red-50 text-red-700'}`}>
+                  {sendStatus}
+                </div>
+              )}
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-sm font-medium text-gray-500">Status</p>
-                    <p className={`mt-1 text-lg font-semibold ${
-                      webhookResponse.success ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {webhookResponse.success ? 'Success' : 'Failed'}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-sm font-medium text-gray-500">Timestamp</p>
-                    <p className="mt-1 text-lg font-semibold text-gray-900">
-                      {new Date(webhookResponse.timestamp || '').toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-sm font-medium text-gray-500">Message</p>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">{webhookResponse.message}</p>
-                </div>
-
                 {webhookResponse.content && (
                   <div className="bg-gray-50 p-4 rounded-xl">
                     <div className="flex justify-between items-center mb-4">
-                      <p className="text-sm font-medium text-gray-500">Case Study Content</p>
+                      <p className="text-sm font-medium text-gray-500">You can edit the content below</p>
                       <button
                         onClick={toggleEdit}
-                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg transition-all duration-200 hover:scale-105 cursor-pointer"
                       >
                         {isEditing ? 'Save Changes' : 'Edit Content'}
                       </button>
