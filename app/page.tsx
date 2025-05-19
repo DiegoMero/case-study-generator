@@ -223,7 +223,7 @@ export default function Home() {
                   <Input name="clientName" placeholder="Enter client name" value={formData.clientName} onChange={handleChange} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Client's Role (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Client&apos;s Role (Optional)</label>
                   <Input name="clientRole" placeholder="Enter client's role" value={formData.clientRole} onChange={handleChange} required={false} />
                 </div>
                 <div>
@@ -242,7 +242,7 @@ export default function Home() {
                   <Input name="vaType" placeholder="Enter VA type" value={formData.vaType} onChange={handleChange} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">VA's Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">VA&apos;s Name</label>
                   <Input name="vaName" placeholder="Enter VA's name" value={formData.vaName} onChange={handleChange} />
                 </div>
                 <div>
